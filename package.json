@@ -1,13 +1,8 @@
 {
-  "name": "voice-creator-bot",
+  "name": "discord-voice-bot",
   "version": "1.0.0",
-  "description": "Bot tạo voice channel tự động",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
   "dependencies": {
-    "discord.js": "^14.14.1",
-    "dotenv": "^16.3.1"
+    "discord.js": "^14.14.1"
   }
 }
