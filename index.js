@@ -4,54 +4,72 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates]
 });
 
-// THAY ID THẬT CỦA BẠN VÀO ĐÂY
-const JOIN_TO_CREATE_ID = '1465369594179883089'; // ID kênh "Click để tạo room"
-const CATEGORY_ID = '1465369594179883087';      // ID Danh mục "Voice Gaming"
+// ID THẬT CỦA BẠN (Mình đã giữ nguyên)
+const JOIN_TO_CREATE_ID = '1465369594179883089'; 
+const CATEGORY_ID = '1465369594179883087';      
 
 client.once('ready', () => {
     console.log(`✅ BOT ĐÃ ONLINE: ${client.user.tag}`);
+    console.log(`🚀 Sẵn sàng tạo phòng cho anh em!`);
 });
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
-    // Logic khi người dùng vào kênh mồi
+    // KHI CÓ NGƯỜI BẤM VÀO KÊNH MỒI
     if (newState.channelId === JOIN_TO_CREATE_ID) {
         const guild = newState.guild;
         const category = guild.channels.cache.get(CATEGORY_ID);
         if (!category) return;
 
-        // Tính toán số phòng dựa trên các phòng hiện có trong danh mục
+        // Tính toán số phòng
         const existingRooms = category.children.cache.filter(c => c.type === ChannelType.GuildVoice && c.id !== JOIN_TO_CREATE_ID);
         let roomNumber = 1;
         while (existingRooms.some(r => r.name.includes(`Phòng ${roomNumber}`))) {
             roomNumber++;
         }
 
-        const channel = await guild.channels.create({
-            name: `🔊 ・ Phòng ${roomNumber}`,
-            type: ChannelType.GuildVoice,
-            parent: CATEGORY_ID,
-            permissionOverwrites: [
-                { id: newState.member.id, allow: [PermissionsBitField.Flags.ManageChannels, PermissionsBitField.Flags.MoveMembers] }
-            ]
-        });
+        try {
+            const channel = await guild.channels.create({
+                name: `🔊 ・ Phòng ${roomNumber}`,
+                type: ChannelType.GuildVoice,
+                parent: CATEGORY_ID,
+                permissionOverwrites: [
+                    { id: newState.member.id, allow: [PermissionsBitField.Flags.ManageChannels, PermissionsBitField.Flags.MoveMembers] }
+                ]
+            });
 
-        return newState.setChannel(channel);
+            await newState.setChannel(channel);
+            console.log(`🏠 Đã tạo [Phòng ${roomNumber}] cho ${newState.member.user.username}`);
+        } catch (error) {
+            console.error("❌ Lỗi khi tạo phòng (Có thể do Bot chưa có quyền Quản lý Kênh):", error.message);
+        }
     }
 
-    // Tự động xóa phòng khi trống
+    // TỰ ĐỘNG XÓA PHÒNG TRỐNG
     if (oldState.channel && oldState.channel.parentId === CATEGORY_ID && oldState.channelId !== JOIN_TO_CREATE_ID) {
         if (oldState.channel.members.size === 0) {
             await oldState.channel.delete().catch(() => null);
+            console.log(`🗑️ Đã xóa phòng trống.`);
         }
     }
 });
 
-// Dòng này để Railway tự đọc Token từ Variables, không dán token vào đây!
-client.login(process.env.TOKEN);
-// ... (đoạn code ở trên giữ nguyên) ...
+// ==========================================
+// HỆ THỐNG KIỂM TRA BẮT LỖI RAILWAY Ở ĐÂY
+// ==========================================
+const token = process.env.TOKEN;
 
-// Thêm dòng này để kiểm tra xem Railway có thấy Token không
-console.log("🔎 Kiểm tra biến TOKEN trên Railway:", process.env.TOKEN ? `Đã thấy Token (Dài ${process.env.TOKEN.length} ký tự)` : "❌ KHÔNG TÌM THẤY TOKEN (BỊ TRỐNG)!");
+if (!token) {
+    console.log("=========================================");
+    console.error("❌ LỖI NGHIÊM TRỌNG: RAILWAY KHÔNG TÌM THẤY TOKEN!");
+    console.error("👉 Hãy vào tab 'Variables' trên Railway để thêm biến TOKEN.");
+    console.log("=========================================");
+    process.exit(1); // Dừng lại luôn để không in ra đống lỗi đỏ nữa
+}
 
-// Dòng cuối cùng
-client.login(process.env.TOKEN);
+client.login(token).catch(err => {
+    console.log("=========================================");
+    console.error("❌ LỖI ĐĂNG NHẬP: TOKEN BỊ SAI HOẶC BỊ DISCORD KHÓA!");
+    console.error("👉 Hãy Reset Token mới trên Discord Developer Portal và dán lại vào Railway.");
+    console.error("Chi tiết lỗi:", err.message);
+    console.log("=========================================");
+});
