@@ -48,3 +48,10 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
 // Dòng này để Railway tự đọc Token từ Variables, không dán token vào đây!
 client.login(process.env.TOKEN);
+// ... (đoạn code ở trên giữ nguyên) ...
+
+// Thêm dòng này để kiểm tra xem Railway có thấy Token không
+console.log("🔎 Kiểm tra biến TOKEN trên Railway:", process.env.TOKEN ? `Đã thấy Token (Dài ${process.env.TOKEN.length} ký tự)` : "❌ KHÔNG TÌM THẤY TOKEN (BỊ TRỐNG)!");
+
+// Dòng cuối cùng
+client.login(process.env.TOKEN);
