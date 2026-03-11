@@ -8,8 +8,8 @@ const client = new Client({
 });
 
 // THAY ĐỔI ID Ở ĐÂY
-const JOIN_TO_CREATE_ID = 'ID_KÊNH_VOICE_MỒI'; 
-const CATEGORY_ID = 'ID_DANH_MỤC'; 
+const JOIN_TO_CREATE_ID = '1465369594179883089'; 
+const CATEGORY_ID = '1465369594179883087'; 
 
 client.once('ready', () => {
     console.log(`✅ Bot FPS PRO đã online: ${client.user.tag}`);
