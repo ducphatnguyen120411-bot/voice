@@ -1,6 +1,7 @@
 {
-  "name": "discord-voice-bot",
+  "name": "bot-voice-fps",
   "version": "1.0.0",
+  "description": "Bot tạo voice chuyên nghiệp",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
